@@ -17,6 +17,7 @@ Backup of *.doc*
 
 # Access
 *.accdb
+*.laccdb
 
 # Visio autosave temporary files
 *.~vsd*
