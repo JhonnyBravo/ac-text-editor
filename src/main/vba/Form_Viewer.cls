@@ -35,11 +35,30 @@ Private Sub btnExport_Click()
         Exit Sub
     End If
 
+    Dim objDt As DataTransfer
+    Dim objDtr As DataTransferRepository
+
     Select Case Me.lstType.Value
         Case "CSV"
-            DoCmd.TransferText acExportDelim, , "articles", strPath & "\articles_" & Format(Date, "yyyymmdd") & ".csv", True
+            Set objDt = New DataTransfer
+
+            With objDt
+                .source = "articles"
+                .destination = strPath & "\articles_" & Format(Date, "yyyymmdd") & ".csv"
+            End With
+
+            Set objDtr = New CsvController
+            objDtr.exportData objDt
         Case "Excel"
-            DoCmd.TransferSpreadsheet acExport, acSpreadsheetTypeExcel12Xml, "articles", strPath & "\articles_" & Format(Date, "yyyymmdd") & ".xlsx", True
+            Set objDt = New DataTransfer
+
+            With objDt
+                .source = "articles"
+                .destination = strPath & "\articles_" & Format(Date, "yyyymmdd") & ".xlsx"
+            End With
+
+            Set objDtr = New ExcelController
+            objDtr.exportData objDt
     End Select
 
     MsgBox "完了しました。"
@@ -63,84 +82,22 @@ Private Sub btnImport_Click()
     Dim varArray As Variant
     Dim objArticles As Articles
     Dim objAc As CrudRepository
+    Dim objDt As DataTransfer
+    Dim objDtr As DataTransferRepository
 
     For Each objFile In objFiles
         If objFile.Path Like "*\articles_*.csv" Then
-            Dim objStream As TextStream
-            Dim strLine As String
+            Set objDt = New DataTransfer
+            objDt.source = objFile.Path
 
-            Set objStream = objFile.OpenAsTextStream(ForReading)
-
-            With objStream
-                .SkipLine
-
-                Set objAc = New ArticlesController
-
-                While .AtEndOfStream = False
-                    strLine = .ReadLine
-                    varArray = Split(Replace(strLine, """", ""), ",")
-                    Set objArticles = New Articles
-
-                    With objArticles
-                        .id = varArray(0)
-                        .title = varArray(1)
-                        .contents = varArray(2)
-                    End With
-
-                    objAc.createRecord objArticles
-                Wend
-
-                .Close
-                Set objAc = Nothing
-            End With
+            Set objDtr = New CsvController
+            objDtr.importData objDt
         ElseIf objFile.Path Like "*\articles_*.xlsx" Then
-            Dim objExcel As New Excel.Application
-            Dim objWorkbook As Excel.Workbook
-            Dim objWorksheet As Excel.Worksheet
+            Set objDt = New DataTransfer
+            objDt.source = objFile.Path
 
-            With objExcel
-                .Visible = True
-                Set objWorkbook = .Workbooks.Open(objFile.Path)
-                Set objWorksheet = objWorkbook.Sheets(1)
-            End With
-
-            Dim strRowEnd As String
-            Dim strColEnd As String
-
-            strRowEnd = "A2"
-            strColEnd = "C2"
-
-            With objWorksheet.Range("A2")
-                If .Cells(1, 1).Value <> "" And .Cells(2, 1).Value <> "" Then
-                    strRowEnd = .End(xlDown).Address
-                End If
-            End With
-
-            Dim objTable As Range
-
-            Set objTable = objWorksheet.Range(strRowEnd & ":" & strColEnd)
-            varArray = objTable
-
-            Dim lngRow As Long
-
-            Set objAc = New ArticlesController
-
-            For lngRow = 1 To UBound(varArray)
-                Set objArticles = New Articles
-
-                With objArticles
-                    .id = varArray(lngRow, 1)
-                    .title = varArray(lngRow, 2)
-                    .contents = varArray(lngRow, 3)
-                End With
-
-                objAc.createRecord objArticles
-            Next
-
-            objWorkbook.Close
-            objExcel.Quit
-
-            Set objAc = Nothing
+            Set objDtr = New ExcelController
+            objDtr.importData objDt
         End If
     Next
 
