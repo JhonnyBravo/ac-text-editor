@@ -38,29 +38,19 @@ Private Sub btnExport_Click()
     Dim objDt As DataTransfer
     Dim objDtr As DataTransferRepository
 
+    Set objDt = New DataTransfer
+    objDt.source = "articles"
+
     Select Case Me.lstType.Value
         Case "CSV"
-            Set objDt = New DataTransfer
-
-            With objDt
-                .source = "articles"
-                .destination = strPath & "\articles_" & Format(Date, "yyyymmdd") & ".csv"
-            End With
-
+            objDt.destination = strPath & "\articles_" & Format(Date, "yyyymmdd") & ".csv"
             Set objDtr = New CsvController
-            objDtr.exportData objDt
         Case "Excel"
-            Set objDt = New DataTransfer
-
-            With objDt
-                .source = "articles"
-                .destination = strPath & "\articles_" & Format(Date, "yyyymmdd") & ".xlsx"
-            End With
-
+            objDt.destination = strPath & "\articles_" & Format(Date, "yyyymmdd") & ".xlsx"
             Set objDtr = New ExcelController
-            objDtr.exportData objDt
     End Select
 
+    objDtr.exportData objDt
     MsgBox "完了しました。"
 End Sub
 
@@ -79,26 +69,20 @@ Private Sub btnImport_Click()
 
     Set objFiles = objFso.GetFolder(Me.txtPath).Files
 
-    Dim varArray As Variant
-    Dim objArticles As Articles
-    Dim objAc As CrudRepository
     Dim objDt As DataTransfer
     Dim objDtr As DataTransferRepository
 
     For Each objFile In objFiles
+        Set objDt = New DataTransfer
+        objDt.source = objFile.Path
+
         If objFile.Path Like "*\articles_*.csv" Then
-            Set objDt = New DataTransfer
-            objDt.source = objFile.Path
-
             Set objDtr = New CsvController
-            objDtr.importData objDt
         ElseIf objFile.Path Like "*\articles_*.xlsx" Then
-            Set objDt = New DataTransfer
-            objDt.source = objFile.Path
-
             Set objDtr = New ExcelController
-            objDtr.importData objDt
         End If
+
+        objDtr.importData objDt
     Next
 
     Me.Requery
