@@ -52,7 +52,8 @@ Private Sub DataTransferRepository_importData(objModel As Object)
     On Error GoTo catch
 
     With objExcel
-        .Visible = True
+'        .Visible = True 'テスト用
+        .Visible = False '本番用
         Set objWorkbook = .Workbooks.Open(objDt.source)
         Set objSheet = objWorkbook.Sheets(1)
 
