@@ -49,8 +49,6 @@ Private Sub CrudRepository_createRecord(objModel As Object)
 
         .Update
     End With
-
-    MsgBox "登録しました。"
 End Sub
 
 '''
@@ -66,7 +64,6 @@ Private Sub CrudRepository_deleteRecord(objModel As Object)
     Set objCr = Me
 
     objCr.findById(objArticles.id).Delete
-    MsgBox "削除しました。"
 End Sub
 
 '''
@@ -105,6 +102,4 @@ Private Sub CrudRepository_updateRecord(objModel As Object)
 
         .Update
     End With
-
-    MsgBox "更新しました。"
 End Sub
