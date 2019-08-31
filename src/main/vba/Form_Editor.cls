@@ -40,6 +40,7 @@ Private Sub btnDelete_Click()
             objCr.deleteRecord objArticles
 
             Set objCr = Nothing
+            MsgBox "削除しました。"
             closeForm
         End If
     End With
@@ -72,6 +73,7 @@ Private Sub btnSave_Click()
         objCr.createRecord objArticles
 
         Set objCr = Nothing
+        MsgBox "登録しました。"
         closeForm
     Else
         'ID が Null ではない場合は既存レコードを更新する。
@@ -81,6 +83,7 @@ Private Sub btnSave_Click()
         objCr.updateRecord objArticles
 
         Set objCr = Nothing
+        MsgBox "更新しました。"
         closeForm
     End If
 End Sub
